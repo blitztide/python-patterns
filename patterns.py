@@ -37,15 +37,14 @@ def offset(chars):
     largestsize = 0
     # Search for capital letter in EIP, determine largest offset size
     for x in chars:
-        print(x)
         if x in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
             largestsize=(ord(x)-64)*260*3 #Finds Largest Capital Letter
         buffer = create(largestsize) #Creates the searchspace
     for y in range(0,largestsize):
-        if buffer[y] == chars[0]:
-            if buffer[y+1] == chars[1]:
-                if buffer[y+2] == chars[2]:
-                    if buffer[y+3] == chars[3]:
+        if buffer[y] == chars[3]:
+            if buffer[y+1] == chars[2]:
+                if buffer[y+2] == chars[1]:
+                    if buffer[y+3] == chars[0]:
                         return int(y)
                     continue
                 continue
