@@ -15,6 +15,7 @@ import sys, argparse
 parser = argparse.ArgumentParser(description="Python pattern tools")
 parser.add_argument("mode",default="C", help="C for create, O for offset")
 parser.add_argument("positional", help="Create - Size, Offset - EIP value")
+parser.add_argument("-b",help="Bad Characters", required=False)
 parser.add_argument("-v",help="verbose", action="store_true")
 args = parser.parse_args()
 
@@ -51,6 +52,11 @@ def offset(chars):
             continue
         continue
 
+def badchars(size,chars):
+    buffer = b"\x41" * (int(size)-256)
+    for x in range(0,256):
+        buffer += x.to_bytes(1, 'big')
+    return buffer
 
 def main():
     if (args.mode == "C"):
@@ -61,6 +67,11 @@ def main():
         if args.v:
             print("Finding offset of: " + args.positional)
         print(offset(args.positional))
+    if (args.mode == "B"):
+        if args.v:
+            print("Generating Bad Pattern of size: " + args.size)
+        sys.stdout.buffer.write(badchars(args.positional, args.b))
+
    
 
 
