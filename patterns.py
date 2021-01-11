@@ -16,8 +16,20 @@ parser = argparse.ArgumentParser(description="Python pattern tools")
 parser.add_argument("mode",default="C", help="C for create, O for offset")
 parser.add_argument("positional", help="Create - Size, Offset - EIP value")
 parser.add_argument("-b",help="Bad Characters", required=False)
+parser.add_argument("-n",help="Number of NOP instructions", required=False)
+parser.add_argument("-e",help="EIP value",required=False)
 parser.add_argument("-v",help="verbose", action="store_true")
 args = parser.parse_args()
+
+def convert_to_hex(string):
+    if "0x" in string:
+        #Is 0x12312312312 format
+        # Split string into 2 nibble chunks
+        hexarray = b""
+        for x in range(2,len(string),2):
+            hexarray += chr(int(string[x]+string[x+1],16))
+        return hexarray #Return byte array
+    return string
 
 def create(size):
     charcode=41
@@ -58,10 +70,19 @@ def badchars(size,chars):
         buffer += x.to_bytes(1, 'big')
     return buffer
 
+def exploit(size,nops,shellcode,EIP):
+    nopsled = b"\x90" * int(nops)
+    eip_val = bytearray(EIP)
+    buffer = eip_val + nopsled + shellcode
+    padding_size = size - len(buffer)
+    buffer = "A" * padding_size + buffer
+    return buffer
+
+
 def main():
     if (args.mode == "C"):
         if(args.v):
-            print ("Creating pattern of size: " + args.size)
+            print ("Creating pattern of size: " + args.positional)
         print(create(int(args.positional)))
     if (args.mode == "O"):
         if args.v:
@@ -69,8 +90,12 @@ def main():
         print(offset(args.positional))
     if (args.mode == "B"):
         if args.v:
-            print("Generating Bad Pattern of size: " + args.size)
+            print("Generating Bad Pattern of size: " + args.positional)
         sys.stdout.buffer.write(badchars(args.positional, args.b))
+    if (args.mode == "E"):
+        shellcode = sys.stdin.read()
+        print(exploit(int(args.positional),int(args.n),shellcode,convert_to_hex(args.e)))
+        
 
    
 
