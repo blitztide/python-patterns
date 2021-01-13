@@ -25,12 +25,7 @@ args = parser.parse_args()
 
 def convert_to_hex(string):
     if "0x" in string:
-        #Is 0x12312312312 format
-        # Split string into 2 nibble chunks
-        hexarray = b""
-        for x in range(2,len(string),2):  #Select every other byte
-            hexarray += chr(int(string[x]+string[x+1],16)) # convert two bytes into actual hex character then append to hex array
-        return hexarray #Return byte array
+        return bytearray.fromhex(string[2:]) #Return byte array
     return string
 
 def create(size):
