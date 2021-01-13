@@ -25,7 +25,10 @@ args = parser.parse_args()
 
 def convert_to_hex(string):
     if "0x" in string:
-        return bytearray.fromhex(string[2:]) #Return byte array
+        #Is 0x12312312312 format
+        # Split string into 2 nibble chunks
+        hexarray = bytearray.fromhex(string[2:])
+        return hexarray #Return byte array
     return string
 
 def create(size):
@@ -47,16 +50,16 @@ def offset(chars):
     largestsize = 0
     # Search for capital letter in EIP, determine largest offset size
     for x in chars:
-        if x in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-            lettersize=(ord(x)-64)*260*3 #Finds current capital letter size
+        if chr(x) in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            lettersize=(x-64)*260*3 #Finds current capital letter size
             if lettersize > largestsize: #If current size is larger than stored largest size, set largest size to letter size.
                 largestsize = lettersize
         buffer = create(largestsize) #Creates the smallest pattern where search string could reside.
     for y in range(0,largestsize):   #Sliding 4 byte search using little endian
-        if buffer[y] == chars[3]:
-            if buffer[y+1] == chars[2]:
-                if buffer[y+2] == chars[1]:
-                    if buffer[y+3] == chars[0]:
+        if buffer[y] == chr(chars[3]):
+            if buffer[y+1] == chr(chars[2]):
+                if buffer[y+2] == chr(chars[1]):
+                    if buffer[y+3] == chr(chars[0]):
                         return int(y) #Only return when all 4 bytes match
                     continue
                 continue
@@ -96,7 +99,6 @@ def main():    # Mode selection routine.
     if (args.mode == "E"):
         shellcode = sys.stdin.read()
         sys.stdout.write(exploit(int(args.positional),int(args.n),shellcode,convert_to_hex(args.e),args.o))
-        
 
 
 if __name__ == "__main__":
