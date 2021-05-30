@@ -8,7 +8,7 @@ Python implementation of patterns and offsets for fuzzing and buffer overflows.
 patterns creates patterns in blocks of 3 bytes, following an upper case letter, number and lower case letter pattern (A0aA0bA0c)
 
 ### Offset (Mode O)
-This takes an input in 0xAABBCCDD format to look for a matching pattern in a generated pattern and it will return the offset in bytes.
+This takes an input in 0xAABBCCDD format to look for a matching pattern in a generated pattern and it will return endian-ness and offset in bytes.
 
 ### Badchars (Mode B)
 This mode will generate a buffer of all hex codes followed by a buffer of 0x41 characters for a specified size, bad characters can be selected with -b 0x000102
