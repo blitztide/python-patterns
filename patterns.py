@@ -11,7 +11,7 @@ The pattern is a block of 3 characters  A B and C where:
     B -> 0-9
     C -> a-z
 """
-import sys, argparse
+import sys, argparse, string
 
 parser = argparse.ArgumentParser(description="Python pattern tools")
 parser.add_argument("mode",default="C", help="C for create, O for offset")
@@ -45,26 +45,40 @@ def create(size):
             buffer += chr((block % 26)+97)  #Increment every block set to a-z
     return buffer
 
-def offset(chars):
-    buffer = ""
-    largestsize = 0
-    # Search for capital letter in EIP, determine largest offset size
-    for x in chars:
-        if chr(x) in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-            lettersize=(x-64)*260*3 #Finds current capital letter size
-            if lettersize > largestsize: #If current size is larger than stored largest size, set largest size to letter size.
-                largestsize = lettersize
-        buffer = create(largestsize) #Creates the smallest pattern where search string could reside.
-    for y in range(0,largestsize):   #Sliding 4 byte search using little endian
-        if buffer[y] == chr(chars[3]):
-            if buffer[y+1] == chr(chars[2]):
-                if buffer[y+2] == chr(chars[1]):
-                    if buffer[y+3] == chr(chars[0]):
-                        return int(y) #Only return when all 4 bytes match
-                    continue
-                continue
-            continue
-        continue
+def little_endian(buffer):
+    if chr(buffer[0]) in string.ascii_uppercase:
+        offset = (((buffer[0]-65)*260)+((buffer[1]-48)*26)+(buffer[2]-97))*3
+        print("Offset: ",offset)
+
+    if chr(buffer[0]) in string.digits:
+        offset = (((buffer[2]-65)*260)+((buffer[3]-48)*26)+(buffer[1]-96))*3-2
+        print("Offset:", offset)
+
+    if chr(buffer[0]) in string.ascii_lowercase:
+        offset = (((buffer[1]-65)*260)+((buffer[2]-48)*26)+(buffer[3]-97))*3-1
+        print("Offset: ", offset)
+
+# Calculating offset BE
+def big_endian(buffer):
+    if chr(buffer[0]) in string.ascii_uppercase:
+        offset=(((buffer[3]-65)*260)+((buffer[2]-48)*26)+((buffer[1]-97)))*3
+        print("Offset: ", offset)
+    if chr(buffer[0]) in string.digits:
+        offset=(((buffer[1]-65)*260)+((buffer[0]-48)*26)+((buffer[2]-96)))*3-2
+        print("Offset: ", offset)
+    if chr(buffer[0]) in string.ascii_lowercase:
+        offset=(((buffer[2]-65)*260)+((buffer[1]-48)*26)+((buffer[0]-97)))*3-1
+        print("Offset: ", offset)
+
+def offset(buffer):
+   for x in range(0,3):
+      if chr(buffer[x]) in string.ascii_uppercase:
+         if chr(buffer[x + 1]) in string.digits:
+            print("Little Endian")
+            little_endian(buffer)
+         else:
+            print("Big Endian")
+            big_endian(buffer)
 
 def badchars(size,chars):   # Generate a buffer with all possible characters, then append with 0x41 characters
     for x in range(0,256):
@@ -91,7 +105,7 @@ def main():    # Mode selection routine.
     if (args.mode == "O"):
         if args.v:
             print("Finding offset of: " + args.positional)
-        print(offset(convert_to_hex(args.positional)))
+        offset(convert_to_hex(args.positional))
     if (args.mode == "B"):
         if args.v:
             print("Generating Bad Pattern of size: " + args.positional)
