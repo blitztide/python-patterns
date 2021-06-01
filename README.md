@@ -1,6 +1,8 @@
 # python-patterns
 Python implementation of patterns and offsets for fuzzing and buffer overflows.
 
+![Screenshot of Python-Patterns](https://raw.githubusercontent.com/blitztide/python-patterns/main/Pattern_create.png)
+
 ## Syntax
 
 ## Modes
