@@ -5,6 +5,8 @@ Python implementation of patterns and offsets for fuzzing and buffer overflows.
 
 ## Syntax
 
+``` python3 patterns.py [Operation] [values] ```
+
 ## Modes
 ### Pattern Create (Mode C)
 patterns creates patterns in blocks of 3 bytes, following an upper case letter, number and lower case letter pattern (A0aA0bA0c)
